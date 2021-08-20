@@ -6,8 +6,8 @@ def save2json(data, path):
         json.dump(data, f)
 
 
-def json2dict(json_path):
-    with open(json_path, encoding='utf-8') as f:
+def json2dict(path):
+    with open(path, encoding='utf-8') as f:
         d = json.load(f)
     return d
 
@@ -20,5 +20,7 @@ def pretty_print_dict(data):
 
 if __name__ == '__main__':
     filename = './files/test.json'
+    savepath = './files/test_1.json'
     jsondata = json2dict(filename)
     pretty_print_dict(jsondata)
+    save2json(jsondata, savepath)    

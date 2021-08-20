@@ -7,10 +7,23 @@ import logging
 可以作为装饰器，也可以作为上下文管理器使用
 """
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
 class Timer:
+    """
+    使用方法
+    ```python
+    timer = Timer()
+
+    for i in range(N):
+        with timer:
+            func()
+    print(timer.average_time())        
+    ```
+    """
+
     def __init__(self):
         self._total_time = []
 
@@ -40,16 +53,48 @@ class Timer:
         self._total_time = []
 
     @classmethod
-    def timer(cls, func):
-        @functools.wraps(func)
-        def wrapper(*args, **kargs):
-            begin_time = time.time()
-            res = func(*args, **kargs)
-            end_time = time.time()
-            during_time = end_time - begin_time
+    def timer(cls, msg=''):
+        """
+        一个装饰器计时器
+        使用方法如下例所示：
+        ```python
+        import time
 
-            logger.debug(f'run time: {during_time:.2f}s.')
+        @Timer.timer("test time is {:.3f}s.")
+        def timer_test():
+            time.sleep(2)
 
-            return res, during_time
+        timer_test()
+        ```
+        输出
+        ```
+        DEBUG:__main__:test time is 2.004170s.
+        ```
+        """
 
-        return wrapper
+        msg = 'run time: {:.2f}s.' if msg == '' else msg
+
+        def timer_(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kargs):
+                begin_time = time.time()
+                res = func(*args, **kargs)
+                end_time = time.time()
+                during_time = end_time - begin_time
+
+                logger.debug(msg.format(during_time))
+
+                return res, during_time
+
+            return wrapper
+        return timer_
+
+
+if __name__ == '__main__':
+    import time
+
+    @Timer.timer("test time is {:.3f}s.")
+    def timer_test():
+        time.sleep(2)
+
+    timer_test()
